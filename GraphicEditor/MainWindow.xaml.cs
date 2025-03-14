@@ -19,5 +19,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        Line line = new Line(new Point(10, 10), new Point(100, 100), Brushes.AliceBlue, 10);
+        line.Draw(this.myCanvas);
     }
 }
