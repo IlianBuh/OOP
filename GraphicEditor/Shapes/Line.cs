@@ -11,23 +11,17 @@ namespace GraphicEditor.Shapes
 {
     class Line: AShape
     {
-        public Line(Point tl, Point rb)
-            : this(tl, rb, Brushes.Black, 5, Brushes.Black) { }
-        public Line(Point tl, Point rb, Brush Stroke)
-            : this(tl, rb, Stroke, 5, Brushes.Black) { }
-        public Line(Point tl, Point rb, Brush Stroke, double StrokeThickness)
-            : this(tl, rb, Stroke, StrokeThickness, Brushes.Black) { }
         public Line(Point tl, Point rb,
-                    Brush Stroke, double StrokeThickness, Brush Fill)
+                    Brush Stroke = null, double StrokeThickness = 3, Brush Fill = null)
                 : base(tl, rb, Stroke, StrokeThickness, Fill) { }
         
         public override void Draw(Canvas canvas) {
             var line = new System.Windows.Shapes.Line();
 
-            line.X1 = LeftTop.X;
-            line.Y1 = LeftTop.Y;
-            line.X2 = RightBottom.X;
-            line.Y2 = RightBottom.Y;
+            line.X1 = Anchor.X;
+            line.Y1 = Anchor.Y;
+            line.X2 = EndPoint.X;
+            line.Y2 = EndPoint.Y;
 
             line.Stroke = Stroke;
             line.StrokeThickness = StrokeThickness;
