@@ -15,7 +15,7 @@
 
         <!-- Top Toolbar -->
         <ToolBar Grid.Row="0">
-            <ComboBox x:Name="cmbTools" Width="100" SelectedIndex="0">
+            <ComboBox x:Name="cmbTools" Width="100" SelectedIndex="0" SelectionChanged="EventNewFigureSelected">
             </ComboBox>
 
             <Separator/>
@@ -47,7 +47,7 @@
         <!-- Drawing Area -->
         <Canvas x:Name="myCanvas" 
                 Grid.Row="1" 
-                Background="White"/>
+                Background="White" MouseDown="EventStartDraw" MouseUp="EventEndDraw"/>
 
         <!-- Status Bar -->
         <StatusBar Grid.Row="2">
