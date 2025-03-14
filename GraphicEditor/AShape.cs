@@ -11,11 +11,14 @@ using System.Windows.Media.Animation;
 
 namespace GraphicEditor
 {
+    using System.Windows;
     abstract class AShape
     {
         public System.Windows.Media.Brush Stroke { set; get; }
         public double StrokeThickness { set; get; }
         public System.Windows.Media.Brush Fill { get; set; }
+        public double Height { get => RightBottom.Y - LeftTop.Y; set => RightBottom.Y = LeftTop.Y + value; }
+        public double Width { get => RightBottom.X - LeftTop.X; set => RightBottom.X = LeftTop.X + value; }
         public Point LeftTop;
         public Point RightBottom;
         
