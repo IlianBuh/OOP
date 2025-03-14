@@ -14,22 +14,21 @@ namespace GraphicEditor
     using System.Windows;
     abstract class AShape
     {
-        public System.Windows.Media.Brush Stroke { set; get; }
+        public Brush Stroke { set; get; }
         public double StrokeThickness { set; get; }
-        public System.Windows.Media.Brush Fill { get; set; }
-        public double Height { get => RightBottom.Y - LeftTop.Y; set => RightBottom.Y = LeftTop.Y + value; }
-        public double Width { get => RightBottom.X - LeftTop.X; set => RightBottom.X = LeftTop.X + value; }
-        public Point LeftTop;
-        public Point RightBottom;
+        public Brush Fill { get; set; }
         
-        protected AShape(Point tl, Point rb,
-                         System.Windows.Media.Brush Stroke, double StrokeThickness, System.Windows.Media.Brush Fill)
+        public Point Anchor;
+        public Point EndPoint;
+        
+        protected AShape(Point anch, Point endP,
+                         Brush Stroke = null, double StrokeThickness = 3, Brush Fill = null)
         {
-            this.LeftTop = tl;
-            this.RightBottom = rb;
-            this.Stroke = Stroke;
+            this.Anchor = anch;
+            this.EndPoint = endP;
+            this.Stroke = Stroke ?? Brushes.Black;
             this.StrokeThickness = StrokeThickness;
-            this.Fill = Fill;
+            this.Fill = Fill ?? Brushes.Black;
         }
         abstract public void Draw(Canvas canvas);
 
