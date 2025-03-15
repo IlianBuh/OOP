@@ -91,46 +91,35 @@ public partial class MainWindow : Window
         this.drawFigure();
     }
     private void EventNewFigureSelected(object sender, SelectionChangedEventArgs e) {
-        if (this.cmbTools.SelectedItem is ComboBoxItem selectedItem)
-        {
-            this.currentFigureConstructor = this.figureConstructors[this.cmbTools.SelectedIndex];
-        }
+        this.currentFigureConstructor = this.figureConstructors[this.cmbTools.SelectedIndex];
     }
     private void EventAddPointToPolygon(object sender, MouseButtonEventArgs e) {
         (this.currentFigure as APolyShape).AddPoint(e.GetPosition(this.myCanvas));
     }
     private void EventCompletePolyShapeDrawing(object sender, KeyEventArgs e) {
-        if (e.Key == Key.Escape)
-        {
+        if (e.Key == Key.Escape && this.isDrawing) {
+            
+            var currFigure = (this.currentFigure as APolyShape);
+            
+            currFigure.Points.Remove(currFigure.Points.Last());
+            this.myCanvas.Children.RemoveAt(this.myCanvas.Children.Count - 1);
+            currFigure.Draw(this.myCanvas);
+
             var lastItem = this.myCanvas.Children[^1];
-            lastItem.MouseUp -= EventAddPointToPolygon;
+           
             this.EventEndDraw(lastItem, null);
         }
     }
     private void setFigureEventHandlers(UIElement currItemOnCanvas) {
-        switch (this.currentFigure is APolyShape)
-        {
-            case true:
-                currItemOnCanvas.MouseUp += this.EventAddPointToPolygon;
-                currItemOnCanvas.KeyDown += this.EventCompletePolyShapeDrawing;
-                Keyboard.Focus(currItemOnCanvas);
-                break;
-            case false:
-                currItemOnCanvas.MouseUp +=
-                    (object sender, MouseButtonEventArgs e) =>
-                    myCanvas.RaiseEvent(new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left)
-                    {
-                        RoutedEvent = Canvas.MouseUpEvent,
-                        Source = sender
-                    });
-                break;
-        }
+
+        currItemOnCanvas.MouseUp += (this.currentFigure is APolyShape) ? this.EventAddPointToPolygon :
+                                                                         this.EventEndDraw;
+        
     }
     
-    // OTHER
+    // ----OTHER----
     private void drawFigure() {
         this.currentFigure.Draw(this.myCanvas);
-
         this.setFigureEventHandlers(this.myCanvas.Children[^1]);       
     }
 

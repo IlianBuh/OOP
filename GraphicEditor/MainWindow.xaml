@@ -18,21 +18,6 @@
             <ComboBox x:Name="cmbTools" Width="100" SelectedIndex="0" SelectionChanged="EventNewFigureSelected">
             </ComboBox>
 
-            <StackPanel Margin="10" Orientation="Horizontal">
-                <Label Content="Fill color     "></Label>
-                <ComboBox x:Name="cbFillColor" 
-              SelectedIndex="0" Width="100">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <Rectangle Width="50" 
-                       Height="20" 
-                       Fill="{Binding}"/>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-
-
-            </StackPanel>
             <Separator/>
 
             <StackPanel Orientation="Horizontal">
