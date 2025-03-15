@@ -19,5 +19,16 @@ namespace GraphicEditor.Shapes
             this.Points = [anch, endP];
         }
         abstract public void AddPoint(Point point);
+        public override Point EndPoint
+        {
+            get => this.Points.Count > 0 ? this.Points[^1] : new Point();
+            set
+            {
+                if (this.Points.Count > 0)
+                    this.Points[^1] = value;
+                else
+                    this.Points.Add(value);
+            }
+        }
     }
 }
