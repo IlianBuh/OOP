@@ -11,7 +11,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GraphicEditor;
 
@@ -30,14 +29,13 @@ public partial class MainWindow : Window
         InitializeComponent();
         
         this.initAllFigureList();
-
-        AShape e = (AShape)(this.currentFigureConstructor.Invoke([new Point(10, 10), new Point(100,100), null, 3, null]));
-        e.Draw(this.myCanvas);
+        this.KeyDown += EventCompletePolyShapeDrawing;
     }
 
+    // ----COMBO BOX HANDLING----
     private void initAllFigureList() {
         this.getAllFigureClasses();
-        this.addFiguresNameInDropList();
+        this.setComboBoxItems();
         this.setInitialFigure();
     }
     private void getAllFigureClasses() {
@@ -52,30 +50,25 @@ public partial class MainWindow : Window
             this.figureConstructors.Add(ctor);
         }
     }
+    private void setComboBoxItems() {
+        this.cmbTools.ItemsSource = this.figureConstructors.Select(item => item.DeclaringType.Name).ToList();
+    }
     private void setInitialFigure() {
         this.cmbTools.SelectedIndex = 0;
         this.setCurrentFigure(0);
     }
-    private void addFiguresNameInDropList() {
-        foreach (var constructor in this.figureConstructors) {
-
-            this.addComboBoxItem( constructor.DeclaringType.Name );
-        }
-    }
-    private void addComboBoxItem(string name) {
-        var comboBoxItem = new ComboBoxItem { Tag = name, Content = name };
-
-        this.cmbTools.Items.Add(comboBoxItem);
-    }
     private void setCurrentFigure(int index) {
         this.currentFigureConstructor = this.figureConstructors[index];
     }
+
+    // ----EVENTS-----
     private void EventStartDraw(object sender, MouseButtonEventArgs e) {
         if (!isDrawing) {
             this.isDrawing = true;
             var mousePosition = e.GetPosition(this.myCanvas);
             this.currentFigure = (AShape)this.currentFigureConstructor.Invoke([mousePosition, 
                                                                                mousePosition, null, 3, null]);
+            
             this.myCanvas.MouseMove += this.EventDrawingFigure;
             this.drawFigure();
         }
@@ -84,6 +77,7 @@ public partial class MainWindow : Window
         this.myCanvas.MouseMove -= this.EventDrawingFigure;
         this.isDrawing = false;
         this.currentFigure = null;
+        this.myCanvas.Focus();
     }
     private void EventDrawingFigure(object sender, MouseEventArgs e) {
 
@@ -91,8 +85,7 @@ public partial class MainWindow : Window
 
         if (this.myCanvas.Children.Count > 0) {
             this.myCanvas.Children.RemoveAt(this.myCanvas.Children.Count-1);
-            this.currentFigure.EndPoint.X = mousePosition.X;
-            this.currentFigure.EndPoint.Y = mousePosition.Y;
+            this.currentFigure.EndPoint = mousePosition;
         }
 
         this.drawFigure();
@@ -103,15 +96,43 @@ public partial class MainWindow : Window
             this.currentFigureConstructor = this.figureConstructors[this.cmbTools.SelectedIndex];
         }
     }
-
+    private void EventAddPointToPolygon(object sender, MouseButtonEventArgs e) {
+        (this.currentFigure as APolyShape).AddPoint(e.GetPosition(this.myCanvas));
+    }
+    private void EventCompletePolyShapeDrawing(object sender, KeyEventArgs e) {
+        if (e.Key == Key.Escape)
+        {
+            var lastItem = this.myCanvas.Children[^1];
+            lastItem.MouseUp -= EventAddPointToPolygon;
+            this.EventEndDraw(lastItem, null);
+        }
+    }
+    private void setFigureEventHandlers(UIElement currItemOnCanvas) {
+        switch (this.currentFigure is APolyShape)
+        {
+            case true:
+                currItemOnCanvas.MouseUp += this.EventAddPointToPolygon;
+                currItemOnCanvas.KeyDown += this.EventCompletePolyShapeDrawing;
+                Keyboard.Focus(currItemOnCanvas);
+                break;
+            case false:
+                currItemOnCanvas.MouseUp +=
+                    (object sender, MouseButtonEventArgs e) =>
+                    myCanvas.RaiseEvent(new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left)
+                    {
+                        RoutedEvent = Canvas.MouseUpEvent,
+                        Source = sender
+                    });
+                break;
+        }
+    }
+    
+    // OTHER
     private void drawFigure() {
         this.currentFigure.Draw(this.myCanvas);
-        this.myCanvas.Children[this.myCanvas.Children.Count-1].MouseDown += 
-            (object sender, MouseButtonEventArgs e) => myCanvas.RaiseEvent(new MouseButtonEventArgs(e.MouseDevice, e.Timestamp, MouseButton.Left)
-            {
-                RoutedEvent = Canvas.MouseUpEvent,
-                Source = sender
-            });
 
+        this.setFigureEventHandlers(this.myCanvas.Children[^1]);       
     }
+
+
 }
