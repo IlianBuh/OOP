@@ -18,8 +18,8 @@ namespace GraphicEditor
         public double StrokeThickness { set; get; }
         public Brush Fill { get; set; }
         
-        public Point Anchor;
-        public Point EndPoint;
+        public readonly Point Anchor;
+        public virtual Point EndPoint { get; set; }
         
         protected AShape(Point anch, Point endP,
                          Brush Stroke = null, double StrokeThickness = 3, Brush Fill = null)
