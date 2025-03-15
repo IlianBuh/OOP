@@ -7,6 +7,54 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Toolbar -->
+        <ToolBar Grid.Row="0">
+            <ComboBox x:Name="cmbTools" Width="100" SelectedIndex="0" SelectionChanged="EventNewFigureSelected">
+            </ComboBox>
+
+            <Separator/>
+
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Color:"/>
+                <Rectangle x:Name="colorPreview" 
+                         Width="20" 
+                         Height="20" 
+                         Stroke="Black"
+                         Margin="5,0"/>
+                <Button x:Name="btnColorPicker" 
+                        Content="..." 
+                        Margin="5,0"/>
+            </StackPanel>
+
+            <Separator/>
+
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Size:"/>
+                <Slider x:Name="brushSizeSlider" 
+                        Minimum="1" 
+                        Maximum="50" 
+                        Value="5"
+                        Width="100"/>
+            </StackPanel>
+        </ToolBar>
+
+        <!-- Drawing Area -->
+        <Canvas x:Name="myCanvas" 
+                Grid.Row="1" 
+                Background="White" MouseDown="EventStartDraw" MouseUp="EventEndDraw"/>
+
+        <!-- Status Bar -->
+        <StatusBar Grid.Row="2">
+            <StatusBarItem>
+                <TextBlock x:Name="statusText">Ready</TextBlock>
+            </StatusBarItem>
+        </StatusBar>
 
     </Grid>
 </Window>
