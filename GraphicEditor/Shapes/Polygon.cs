@@ -10,14 +10,11 @@ using System.Windows.Media;
 
 namespace GraphicEditor.Shapes
 {
-    class Polygon : Base2DFigure
+    class Polygon : APolyShape
     {
-        public List<Point> Points = [];
         public Polygon(Point anch, Point endP,
                         Brush Stroke = null, double StrokeThickness = 3, Brush Fill = null)
-                : base(anch, endP, Stroke, StrokeThickness, Fill) {
-            this.Points = [anch, endP];
-        }
+                : base(anch, endP, Stroke, StrokeThickness, Fill) { }
 
         public override Point EndPoint { 
             get => this.Points.Count > 0 ? this.Points[^1] : new Point(); 
@@ -28,7 +25,7 @@ namespace GraphicEditor.Shapes
                     this.Points.Add(value); 
             } 
         }
-        public void AddPoint(Point point) {
+        public override void AddPoint(Point point) {
             this.Points.Add(point);
         }
         public override void Draw(Canvas canvas)
