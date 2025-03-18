@@ -19,6 +19,25 @@ namespace GraphicEditor;
 /// </summary>
 public partial class MainWindow : Window
 {
+
+    // Dependency property for color picker
+    public static readonly DependencyProperty CurrentColorProperty =
+        DependencyProperty.Register("currentFillColor",             //property name
+                                    typeof(Color),                  //property type
+                                    typeof(MainWindow),             //owner class
+                                    new FrameworkPropertyMetadata(  // metadata
+                                        Colors.Black,               // default value
+                                        null));           //
+
+    public Color currentFillColor
+    {
+        get => (Color)GetValue(CurrentColorProperty);
+        set {
+            this.colorPreview.Fill = new SolidColorBrush(value);   
+            SetValue(CurrentColorProperty, value); 
+        }
+    }
+
     private List<ConstructorInfo> figureConstructors = [];
     private ConstructorInfo currentFigureConstructor = null;
     private AShape currentFigure = null;
@@ -62,12 +81,54 @@ public partial class MainWindow : Window
     }
 
     // ----EVENTS-----
+    private void EventShowColorChoosingPanel(object sender, RoutedEventArgs e)
+    {
+        ColorPopup.IsOpen = true;
+    }
+    private static void OnColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var window = d as MainWindow;
+        if (window != null)
+        {
+            window.colorPreview.Fill = new SolidColorBrush((Color)e.NewValue);
+            if (window.currentFigure != null)
+            {
+                window.currentFigure.Fill = new SolidColorBrush((Color)e.NewValue);
+                window.RedrawCurrentFigure();
+            }
+        }
+    }
+    private void RedrawCurrentFigure()
+    {
+        if (myCanvas.Children.Count > 0)
+        {
+            myCanvas.Children.RemoveAt(myCanvas.Children.Count - 1);
+            currentFigure.Draw(myCanvas);
+        }
+    }
+    private void EventMouseMoveColorPicker(object sender, MouseEventArgs e)
+    {
+        this.currentFillColor = this.ColorPicker.SelectedColor;
+    }
+    private void EventMouseDownColorPicker(object sender, MouseEventArgs e)
+    {
+        this.currentFillColor = this.ColorPicker.SelectedColor;
+        this.ColorPicker.MouseMove += EventMouseMoveColorPicker;
+    }
+
+    private void EventMouseLeaveColorPicker(object sender, MouseEventArgs e)
+    {
+        this.ColorPicker.MouseMove -= EventMouseMoveColorPicker;
+    }
+
     private void EventStartDraw(object sender, MouseButtonEventArgs e) {
         if (!isDrawing) {
             this.isDrawing = true;
             var mousePosition = e.GetPosition(this.myCanvas);
-            this.currentFigure = (AShape)this.currentFigureConstructor.Invoke([mousePosition, 
-                                                                               mousePosition, null, 3, null]);
+            this.currentFigure = (AShape)this.currentFigureConstructor
+                                             .Invoke([mousePosition, mousePosition, 
+                                                      null, this.brushSizeSlider.Value, 
+                                                      new SolidColorBrush(this.currentFillColor)]);
             
             this.myCanvas.MouseMove += this.EventDrawingFigure;
             this.drawFigure();
