@@ -26,7 +26,7 @@ namespace GraphicEditor.Controls
 
         private void UpdateGradient()
         {
-            var hue = (float)HueSlider.Value;
+            var hue = (float)(HueSlider.Maximum - HueSlider.Value);
             var color = ColorFromHsv(hue, 1, 1);
             SelectedHueStop.Color = color;
         }
@@ -71,6 +71,6 @@ namespace GraphicEditor.Controls
 
         private void ColorCanvas_MouseDown(object sender, MouseButtonEventArgs e) => ColorCanvas_MouseInteraction(sender, e);
         private void ColorCanvas_MouseMove(object sender, MouseEventArgs e) => ColorCanvas_MouseInteraction(sender, e);
-        private void ColorCanvas_MouseUp(object sender, MouseButtonEventArgs e) => SelectedColor = SelectedColor; // Force update
+        private void ColorCanvas_MouseUp(object sender, MouseButtonEventArgs e) => SelectedColor = SelectedColor; 
     }
 }

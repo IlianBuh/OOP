@@ -14,19 +14,30 @@
                 MouseDown="ColorCanvas_MouseDown"
                 MouseMove="ColorCanvas_MouseMove"
                 MouseUp="ColorCanvas_MouseUp">
-            <Rectangle x:Name="GradientRect" Width="250" Height="100">
+
+            <!-- Base Hue Gradient (White to Selected Hue) -->
+            <Rectangle x:Name="HueRect" Width="300" Height="124">
                 <Rectangle.Fill>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                         <GradientStop Color="White" Offset="0"/>
-                        <GradientStop x:Name="SelectedHueStop" Offset="1"/>
+                        <GradientStop x:Name="SelectedHueStop" Color="Red" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+
+            <!-- Brightness Overlay (Transparent to Black) -->
+            <Rectangle Width="300" Height="124">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#00000000" Offset="0"/>
+                        <GradientStop Color="#FF000000" Offset="1"/>
                     </LinearGradientBrush>
                 </Rectangle.Fill>
             </Rectangle>
         </Canvas>
 
         <!-- Hue Slider -->
-        <Slider x:Name="HueSlider" Grid.Row="1" Minimum="0" Maximum="360"
-                Margin="10" ValueChanged="HueSlider_ValueChanged">
+        <Slider x:Name="HueSlider" Minimum="1" Maximum="360" ValueChanged="HueSlider_ValueChanged" Margin="0,124,0,0" Grid.RowSpan="2">
             <Slider.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                     <GradientStop Color="#FF0000" Offset="0"/>
