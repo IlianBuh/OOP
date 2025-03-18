@@ -25,9 +25,9 @@ public partial class MainWindow : Window
         DependencyProperty.Register("currentFillColor",             //property name
                                     typeof(Color),                  //property type
                                     typeof(MainWindow),             //owner class
-                                    new FrameworkPropertyMetadata(  // metadata
-                                        Colors.Black,               // default value
-                                        null));           //
+                                    new FrameworkPropertyMetadata(  //metadata
+                                        Colors.Black,               //default value
+                                        null));                     //event handler on changes
 
     public Color currentFillColor
     {
@@ -81,31 +81,12 @@ public partial class MainWindow : Window
     }
 
     // ----EVENTS-----
+    //       ----COLOR PICKER----
     private void EventShowColorChoosingPanel(object sender, RoutedEventArgs e)
     {
         ColorPopup.IsOpen = true;
     }
-    private static void OnColorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        var window = d as MainWindow;
-        if (window != null)
-        {
-            window.colorPreview.Fill = new SolidColorBrush((Color)e.NewValue);
-            if (window.currentFigure != null)
-            {
-                window.currentFigure.Fill = new SolidColorBrush((Color)e.NewValue);
-                window.RedrawCurrentFigure();
-            }
-        }
-    }
-    private void RedrawCurrentFigure()
-    {
-        if (myCanvas.Children.Count > 0)
-        {
-            myCanvas.Children.RemoveAt(myCanvas.Children.Count - 1);
-            currentFigure.Draw(myCanvas);
-        }
-    }
+    
     private void EventMouseMoveColorPicker(object sender, MouseEventArgs e)
     {
         this.currentFillColor = this.ColorPicker.SelectedColor;
@@ -120,7 +101,8 @@ public partial class MainWindow : Window
     {
         this.ColorPicker.MouseMove -= EventMouseMoveColorPicker;
     }
-
+    
+    //       ----DRAWING----
     private void EventStartDraw(object sender, MouseButtonEventArgs e) {
         if (!isDrawing) {
             this.isDrawing = true;

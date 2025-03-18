@@ -22,7 +22,7 @@
             <Separator/>
 
             <StackPanel Orientation="Horizontal">
-                <Label Content="Color:"/>
+                <Label Content="Fill:"/>
                 <Rectangle x:Name="colorPreview" 
                          Width="20" 
                          Height="20" 
