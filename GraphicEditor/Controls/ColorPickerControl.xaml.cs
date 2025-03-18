@@ -21,10 +21,10 @@ namespace GraphicEditor.Controls
         public ColorPickerControl()
         {
             InitializeComponent();
-            UpdateGradient();
+            UpdateHueColor();
         }
 
-        private void UpdateGradient()
+        private void UpdateHueColor()
         {
             var hue = (float)(HueSlider.Maximum - HueSlider.Value);
             var color = ColorFromHsv(hue, 1, 1);
@@ -33,27 +33,24 @@ namespace GraphicEditor.Controls
 
         private void HueSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            UpdateGradient();
+            UpdateHueColor();
         }
 
         private void ColorCanvas_MouseInteraction(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                var pos = e.GetPosition(ColorCanvas);
-                var x = pos.X / ColorCanvas.ActualWidth;
-                var y = pos.Y / ColorCanvas.ActualHeight;
+            var pos = e.GetPosition(ColorCanvas);
+            double saturation = pos.X / ColorCanvas.ActualWidth;
+            double brightness = 1 - (pos.Y / ColorCanvas.ActualHeight);
 
-                SelectedColor = ColorFromHsv(HueSlider.Value, x, 1 - y);
-            }
+            SelectedColor = ColorFromHsv(HueSlider.Maximum - HueSlider.Value, saturation, brightness);
         }
 
-        private Color ColorFromHsv(double hue, double saturation, double value)
+        private Color ColorFromHsv(double hue, double saturation, double brightness)
         {
             int hi = (int)(hue / 60) % 6;
             double f = hue / 60 - hi;
 
-            double v = value * 255;
+            double v = brightness * 255;
             double p = v * (1 - saturation);
             double q = v * (1 - f * saturation);
             double t = v * (1 - (1 - f) * saturation);
