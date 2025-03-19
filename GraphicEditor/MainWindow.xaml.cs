@@ -19,28 +19,14 @@ namespace GraphicEditor;
 /// </summary>
 public partial class MainWindow : Window
 {
+ 
+    private int currChangingColor;
+    private System.Windows.Shapes.Rectangle[] previewsFillStroke;
+    private Color[] colorsFillStroke                    = [ Colors.White, Colors.Black];
 
-    // Dependency property for color picker
-    public static readonly DependencyProperty CurrentColorProperty =
-        DependencyProperty.Register("currentFillColor",             //property name
-                                    typeof(Color),                  //property type
-                                    typeof(MainWindow),             //owner class
-                                    new FrameworkPropertyMetadata(  //metadata
-                                        Colors.Black,               //default value
-                                        null));                     //event handler on changes
-
-    public Color currentFillColor
-    {
-        get => (Color)GetValue(CurrentColorProperty);
-        set {
-            this.colorPreview.Fill = new SolidColorBrush(value);   
-            SetValue(CurrentColorProperty, value); 
-        }
-    }
-
-    private List<ConstructorInfo> figureConstructors = [];
-    private ConstructorInfo currentFigureConstructor = null;
-    private AShape currentFigure = null;
+    private List<ConstructorInfo> figureConstructors    = [];
+    private ConstructorInfo currentFigureConstructor    = null;
+    private AShape currentFigure                        = null;
 
     bool isDrawing = false;
     public MainWindow()
@@ -48,7 +34,8 @@ public partial class MainWindow : Window
         InitializeComponent();
         
         this.initAllFigureList();
-        this.KeyDown += EventCompletePolyShapeDrawing;
+        this.KeyDown                += EventCompletePolyShapeDrawing;
+        this.previewsFillStroke    = [ this.fillColorPreview, this.strokeColorPreview ];
     }
 
     // ----COMBO BOX HANDLING----
@@ -85,23 +72,35 @@ public partial class MainWindow : Window
     private void EventShowColorChoosingPanel(object sender, RoutedEventArgs e)
     {
         ColorPopup.IsOpen = true;
+        switch ((sender as Button).Name) {
+            case "btnColorPicker1":
+                this.currChangingColor = 0;
+                break;
+
+            case "btnColorPicker2":
+                this.currChangingColor = 1;
+                break;
+        }
     }
-    
     private void EventMouseMoveColorPicker(object sender, MouseEventArgs e)
     {
-        this.currentFillColor = this.ColorPicker.SelectedColor;
+        this.changeOnColorPickerValue();
     }
     private void EventMouseDownColorPicker(object sender, MouseEventArgs e)
     {
-        this.currentFillColor = this.ColorPicker.SelectedColor;
+        this.changeOnColorPickerValue();
         this.ColorPicker.MouseMove += EventMouseMoveColorPicker;
     }
 
+    private void changeOnColorPickerValue() { 
+        Color color                                             = this.ColorPicker.SelectedColor;
+        this.colorsFillStroke[this.currChangingColor]          = color;
+        this.previewsFillStroke[this.currChangingColor].Fill   = new SolidColorBrush(color);
+    }
     private void EventMouseLeaveColorPicker(object sender, MouseEventArgs e)
     {
         this.ColorPicker.MouseMove -= EventMouseMoveColorPicker;
     }
-    
     //       ----DRAWING----
     private void EventStartDraw(object sender, MouseButtonEventArgs e) {
         if (!isDrawing) {
@@ -109,8 +108,8 @@ public partial class MainWindow : Window
             var mousePosition = e.GetPosition(this.myCanvas);
             this.currentFigure = (AShape)this.currentFigureConstructor
                                              .Invoke([mousePosition, mousePosition, 
-                                                      null, this.brushSizeSlider.Value, 
-                                                      new SolidColorBrush(this.currentFillColor)]);
+                                                      new SolidColorBrush(this.colorsFillStroke[1]), this.brushSizeSlider.Value, 
+                                                      new SolidColorBrush(this.colorsFillStroke[0])]);
             
             this.myCanvas.MouseMove += this.EventDrawingFigure;
             this.drawFigure();
@@ -166,5 +165,8 @@ public partial class MainWindow : Window
         this.setFigureEventHandlers(this.myCanvas.Children[^1]);       
     }
 
+    private void ColorPopup_Closed(object sender, EventArgs e)
+    {
 
+    }
 }

@@ -21,14 +21,16 @@
 
             <Separator/>
 
+            <!-- Fill color -->
             <StackPanel Orientation="Horizontal">
                 <Label Content="Fill:"/>
-                <Rectangle x:Name="colorPreview" 
+                <Rectangle x:Name="fillColorPreview" 
                          Width="20" 
                          Height="20" 
                          Stroke="Black"
-                         Margin="5,0"/>
-                <Button x:Name="btnColorPicker" 
+                         Margin="5,0"
+                         Fill="White"/>
+                <Button x:Name="btnColorPicker1" 
                         Content="..." 
                         Margin="5,0"
                         Click="EventShowColorChoosingPanel"/>
@@ -46,6 +48,7 @@
 
             <Separator/>
 
+            <!-- Strocke thickness -->
             <StackPanel Orientation="Horizontal">
                 <Label Content="Size:"/>
                 <Slider x:Name="brushSizeSlider" 
@@ -54,6 +57,24 @@
                         Value="5"
                         Width="100"/>
             </StackPanel>
+
+            <Separator/>
+
+            <StackPanel Orientation="Horizontal">
+                <Label Content="Stroke:"/>
+                <Rectangle x:Name="strokeColorPreview" 
+                         Width="20" 
+                         Height="20" 
+                         Stroke="Black"
+                         Margin="5,0"
+                         Fill="Black"/>
+                <Button x:Name="btnColorPicker2" 
+                    Content="..." 
+                    Margin="5,0"
+                    Click="EventShowColorChoosingPanel"/>
+                
+            </StackPanel>
+
         </ToolBar>
 
         <!-- Drawing Area -->
