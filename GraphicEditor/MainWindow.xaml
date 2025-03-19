@@ -48,7 +48,7 @@
 
             <Separator/>
 
-            <!-- Strocke thickness -->
+            <!-- Stroke thickness -->
             <StackPanel Orientation="Horizontal">
                 <Label Content="Size:"/>
                 <Slider x:Name="brushSizeSlider" 
@@ -75,6 +75,16 @@
                 
             </StackPanel>
 
+            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                <Button x:Name="btnUndo" Content="Undo" 
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Center"
+                        Margin="10 0 10 0" Click="btnUndo_Click"/>
+                <Button x:Name="btnRedo" Content="Redo" 
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Center"
+                        Margin="10 0 10 0" Click="btnRedo_Click"/>
+            </StackPanel>
         </ToolBar>
 
         <!-- Drawing Area -->
