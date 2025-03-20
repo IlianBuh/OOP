@@ -34,38 +34,35 @@ namespace GraphicEditor
                 this.drawFigure();
             }
         }
-        public void StopDrawing(Point point) {
+        public bool StopDrawing(Point point, bool isKeyPressed = false) {
 
-            this.stopPolyShape = false;
-            this.CompletePolyShapeDrawing();
-            if (isPolyShape && !stopPolyShape) {
+
+            this.CompletePolyShapeDrawing(isKeyPressed);
+            if (this.isPolyShape && !this.stopPolyShape) {
                 this.addPointToPolygon(point);
-                return;
+                return false;
             }
             this.isDrawing = false;
             this.currentFigure = null;
-            this.redoStack.Clear();
             this.stopPolyShape = false;
+            this.redoStack.Clear();
+            return true;
         }
         public void UpdateFigure(Point endPoint) {
             if (!isDrawing) return;
 
             if (this.myCanvas.Children.Count > 0)
             {
-                if (this.isPolyShape) {
-                    this.addPointToPolygon(endPoint);
-                }
-                else { 
-                    this.currentFigure.EndPoint = endPoint;
-                }
                 
                 this.myCanvas.Children.RemoveAt(this.myCanvas.Children.Count - 1);
+                this.currentFigure.EndPoint = endPoint;
 
             }
             this.drawFigure();
         }
-        public void CompletePolyShapeDrawing() {
-            if (this.isDrawing && this.isPolyShape) { 
+        private void CompletePolyShapeDrawing(bool isKeyPressed) {
+            if (this.isDrawing && this.isPolyShape && isKeyPressed)
+            {
                 var currFigure = (this.currentFigure as APolyShape);
                 this.stopPolyShape = true;
                 currFigure.Points.Remove(currFigure.Points.Last());
@@ -74,8 +71,8 @@ namespace GraphicEditor
 
                 var lastItem = this.myCanvas.Children[^1];
 
-                this.StopDrawing(new Point());
             }
+
         }
 
         public void Undo() {
