@@ -114,13 +114,16 @@ public partial class MainWindow : Window
     {
         this.drawer.StartDrawing(e.GetPosition(this.myCanvas), this.currentFigureConstructor,
             new SolidColorBrush(this.colorsFillStroke[1]), this.brushSizeSlider.Value, new SolidColorBrush(this.colorsFillStroke[0]));
+        
         this.myCanvas.MouseMove += this.EventDrawingFigure;
-        this.myCanvas.Children[^1].MouseUp += EventEndDraw;
+        this.myCanvas.MouseUp += EventEndDraw;
     }
     
     private void EventEndDraw(object sender, MouseButtonEventArgs e)
     {
-        this.drawer.StopDrawing(e.GetPosition(this.myCanvas));
+        if (!this.drawer.StopDrawing(e.GetPosition(this.myCanvas))) {
+            return;
+        }
 
         this.myCanvas.MouseMove -= this.EventDrawingFigure;
         this.myCanvas.Focus();
@@ -128,6 +131,7 @@ public partial class MainWindow : Window
     private void EventDrawingFigure(object sender, MouseEventArgs e)
     {
         this.drawer.UpdateFigure(e.GetPosition(this.myCanvas));
+        this.myCanvas.Children[^1].MouseUp += EventEndDraw;
     }
     private void EventNewFigureSelected(object sender, SelectionChangedEventArgs e)
     {
@@ -137,7 +141,7 @@ public partial class MainWindow : Window
     {
         if (e.Key == Key.Escape)
         {
-            this.drawer.CompletePolyShapeDrawing();
+            this.drawer.StopDrawing(new Point(), true);
         }
     }
 
