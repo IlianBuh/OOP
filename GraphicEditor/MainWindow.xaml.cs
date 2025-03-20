@@ -20,22 +20,20 @@ namespace GraphicEditor;
 public partial class MainWindow : Window
 {
 
-    MyStack<System.Windows.Shapes.Shape> redoStack = new();
-
+    private Drawer drawer;
     private int currChangingColor;
     private System.Windows.Shapes.Rectangle[] previewsFillStroke;
     private Color[] colorsFillStroke = [Colors.White, Colors.Black];
 
     private List<ConstructorInfo> figureConstructors = [];
     private ConstructorInfo currentFigureConstructor = null;
-    private AShape currentFigure = null;
 
-    bool isDrawing = false;
     public MainWindow()
     {
         InitializeComponent();
 
         this.initAllFigureList();
+        this.drawer = new Drawer(this.myCanvas);
         this.KeyDown += EventCompletePolyShapeDrawing;
         this.previewsFillStroke = [this.fillColorPreview, this.strokeColorPreview];
     }
@@ -114,130 +112,44 @@ public partial class MainWindow : Window
     //       ----DRAWING----
     private void EventStartDraw(object sender, MouseButtonEventArgs e)
     {
-        if (!isDrawing)
-        {
-            this.isDrawing = true;
-            var mousePosition = e.GetPosition(this.myCanvas);
-            this.currentFigure = (AShape)this.currentFigureConstructor
-                                             .Invoke([mousePosition, mousePosition,
-                                                      new SolidColorBrush(this.colorsFillStroke[1]), this.brushSizeSlider.Value,
-                                                      new SolidColorBrush(this.colorsFillStroke[0])]);
-
-            this.myCanvas.MouseMove += this.EventDrawingFigure;
-            this.drawFigure();
-        }
+        this.drawer.StartDrawing(e.GetPosition(this.myCanvas), this.currentFigureConstructor,
+            new SolidColorBrush(this.colorsFillStroke[1]), this.brushSizeSlider.Value, new SolidColorBrush(this.colorsFillStroke[0]));
+        this.myCanvas.MouseMove += this.EventDrawingFigure;
+        this.myCanvas.Children[^1].MouseUp += EventEndDraw;
     }
+    
     private void EventEndDraw(object sender, MouseButtonEventArgs e)
     {
+        this.drawer.StopDrawing(e.GetPosition(this.myCanvas));
+
         this.myCanvas.MouseMove -= this.EventDrawingFigure;
-        this.isDrawing = false;
-        this.currentFigure = null;
         this.myCanvas.Focus();
-        this.redoStack.Clear();
     }
     private void EventDrawingFigure(object sender, MouseEventArgs e)
     {
-
-        var mousePosition = e.GetPosition(this.myCanvas);
-
-        if (this.myCanvas.Children.Count > 0)
-        {
-            this.myCanvas.Children.RemoveAt(this.myCanvas.Children.Count - 1);
-            this.currentFigure.EndPoint = mousePosition;
-        }
-
-        this.drawFigure();
+        this.drawer.UpdateFigure(e.GetPosition(this.myCanvas));
     }
     private void EventNewFigureSelected(object sender, SelectionChangedEventArgs e)
     {
         this.currentFigureConstructor = this.figureConstructors[this.cmbTools.SelectedIndex];
     }
-    private void EventAddPointToPolygon(object sender, MouseButtonEventArgs e)
-    {
-        (this.currentFigure as APolyShape).AddPoint(e.GetPosition(this.myCanvas));
-    }
     private void EventCompletePolyShapeDrawing(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Escape && this.isDrawing)
+        if (e.Key == Key.Escape)
         {
-
-            var currFigure = (this.currentFigure as APolyShape);
-
-            currFigure.Points.Remove(currFigure.Points.Last());
-            this.myCanvas.Children.RemoveAt(this.myCanvas.Children.Count - 1);
-            currFigure.Draw(this.myCanvas);
-
-            var lastItem = this.myCanvas.Children[^1];
-
-            this.EventEndDraw(lastItem, null);
+            this.drawer.CompletePolyShapeDrawing();
         }
-    }
-    private void setFigureEventHandlers(UIElement currItemOnCanvas)
-    {
-
-        currItemOnCanvas.MouseUp += (this.currentFigure is APolyShape) ? this.EventAddPointToPolygon :
-                                                                         this.EventEndDraw;
-
     }
 
     // ----OTHER----
-    private void drawFigure()
-    {
-        this.currentFigure.Draw(this.myCanvas);
-        this.setFigureEventHandlers(this.myCanvas.Children[^1]);
-    }
 
-
-    class MyStack<T> {
-        private const int stackSize = 20;
-        private T?[] stack = new T?[stackSize];
-        private int addS = 0;
-        private int endS = stackSize-1;
-
-        public void AddShape(T shape) {
-            stack[addS] = shape;
-            var newPoint = (addS + 1) % stackSize;
-            
-            if (addS == endS) {
-                endS = newPoint;
-            }
-
-            addS = newPoint;
-        }
-        public (T shape, bool ok) GetShape() {
-            if ((endS + 1) % stackSize == addS) {
-                return (default, false);
-            }
-            addS = addS == 0 ? 19 : addS - 1;
-            return (stack[addS], true);
-        }
-        public void Clear() {
-            endS = stackSize-1;
-            
-            for (addS = 0;addS < stackSize && stack[addS] != null;addS++) {
-                stack[addS] = default;
-            }
-
-            addS = 0;
-        }
-    }
 
     private void btnUndo_Click(object sender, RoutedEventArgs e)
     {
-        var c = this.myCanvas.Children.Count-1; 
-        if (c >= 0) {
-            this.redoStack.AddShape(this.myCanvas.Children[c] as System.Windows.Shapes.Shape);
-            this.myCanvas.Children.RemoveAt(c);
-        }
+        this.drawer.Undo();
     }
 
-    private void btnRedo_Click(object sender, RoutedEventArgs e)
-    {
-        var res = this.redoStack.GetShape();
-        if (res.ok) {
-            this.myCanvas.Children.Add(res.shape);
-        } else {
-            MessageBox.Show("No shape in history.");
-        }
+    private void btnRedo_Click(object sender, RoutedEventArgs e) {
+        this.drawer.Redo();
     }
 }
