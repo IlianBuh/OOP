@@ -15,8 +15,12 @@
         </Grid.RowDefinitions>
 
         <!-- Top Toolbar -->
-        <ToolBar Grid.Row="0">
-            <ComboBox x:Name="cmbTools" Width="100" SelectedIndex="0" SelectionChanged="EventNewFigureSelected">
+        <ToolBar Grid.Row="0" x:Name="toolBar">
+            <ComboBox x:Name="cmbTools" 
+                      Width="100" 
+                      SelectedIndex="0" 
+                      SelectionChanged="EventNewFigureSelected" 
+                      ItemsSource="{Binding FigureNames}">
             </ComboBox>
 
             <Separator/>
@@ -24,28 +28,29 @@
             <!-- Fill color -->
             <StackPanel Orientation="Horizontal">
                 <Label Content="Fill:"/>
-                <Rectangle x:Name="fillColorPreview" 
+                <Rectangle x:Name="previewFillColor0" 
                          Width="20" 
                          Height="20" 
                          Stroke="Black"
                          Margin="5,0"
                          Fill="White"/>
-                <Button x:Name="btnColorPicker1" 
+                <Button x:Name="colorFillBtn0" 
                         Content="..." 
                         Margin="5,0"
                         Click="EventShowColorChoosingPanel"/>
-                <Popup x:Name="ColorPopup"
-                       PlacementTarget="{Binding ElementName=btnColorPicker}"
-                       StaysOpen="False" 
-                       Width="300" Height="150" 
-                       MouseDown="EventMouseDownColorPicker"
-                       MouseLeave="EventMouseLeaveColorPicker"
-                       MouseUp="EventMouseLeaveColorPicker">
-                                <controls:ColorPickerControl x:Name="ColorPicker"
-                                                SelectedColor="{Binding currentFillColor, Mode=TwoWay}"/>
-                </Popup>
             </StackPanel>
 
+            <Popup x:Name="colorPopup"
+               PlacementTarget="{Binding ElementName=btnColorPicker}"
+               StaysOpen="False" 
+               Width="300" Height="150" 
+               MouseDown="EventMouseDownColorPicker"
+               MouseLeave="EventMouseLeaveColorPicker"
+               MouseUp="EventMouseUpColorPicker"
+               Closed="EventCloseColorFillPopup">
+                        <controls:ColorPickerControl x:Name="colorPicker"
+                                         SelectedColor="{Binding fill}"/>
+            </Popup>
             <Separator/>
 
             <!-- Stroke thickness -->
@@ -62,13 +67,13 @@
 
             <StackPanel Orientation="Horizontal">
                 <Label Content="Stroke:"/>
-                <Rectangle x:Name="strokeColorPreview" 
+                <Rectangle x:Name="previewStrokeColor1" 
                          Width="20" 
                          Height="20" 
                          Stroke="Black"
                          Margin="5,0"
                          Fill="Black"/>
-                <Button x:Name="btnColorPicker2" 
+                <Button x:Name="colorStrokeBtn1" 
                     Content="..." 
                     Margin="5,0"
                     Click="EventShowColorChoosingPanel"/>
