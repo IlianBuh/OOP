@@ -1,4 +1,6 @@
 ﻿using GraphicEditor.Controls;
+using GraphicEditor.intern.plugins;
+using GraphicEditor.intern.serializer;
 using GraphicEditor.@internal.drawer;
 using GraphicEditor.Shapes;
 using System.Collections.ObjectModel;
@@ -28,8 +30,10 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
     private Drawer drawer;
 
     // TODO : implement preview color rectangles
-    private List<FrameworkElement> previews = new (32);
+    private List<FrameworkElement> previews;
     private int currItemColor;
+    private PluginResolver pres;
+    private Serializer serializer;
 
     public ObservableCollection<string> FigureNames { get; set; }
 
@@ -43,6 +47,8 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
         this.FigureNames = new ObservableCollection<string>(this.drawer.GetFigureNames());
         this.KeyDown += this.EventCompletePolyShapeDrawing;
         this.Loaded += this.onLoaded;
+        this.serializer = new();
+        this.pres = new();
     }
     private void onLoaded(object sender, RoutedEventArgs e){
         this.previews = this.getPreviews(this.toolBar, new());
@@ -76,8 +82,23 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
         this.drawer.SetFigure(index);
     }
 
+
+
     // ----EVENTS-----
-    
+    //       ----SERIALIZER----
+    private void EventSaveCanvas(object sender, EventArgs e) {
+        this.serializer.SaveCanvas(this.myCanvas);
+    }
+    private void EventLoadCanvas(object sender, EventArgs e) {
+        this.serializer.LoadFile(this.myCanvas);
+    }
+
+    //       ----PLUGIN RESOLVER----
+    private void EventAddPlugin(object sender, EventArgs e) {
+        this.pres.AddPlugin();
+    }
+
+
     //       ----COLOR PICKER----
     private void EventShowColorChoosingPanel(object sender, RoutedEventArgs e)
     {
@@ -133,7 +154,6 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
         this.myCanvas.MouseMove += this.EventDrawingFigure;
         this.myCanvas.MouseUp += EventEndDraw;
     }
-    
     private void EventEndDraw(object sender, MouseButtonEventArgs e)
     {
         if (!this.drawer.StopDrawing(e.GetPosition(this.myCanvas))) {
@@ -174,8 +194,4 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
         this.drawer.Redo();
     }
 
-    private void colorFillPopup_Closed(object sender, EventArgs e)
-    {
-
-    }
 }
