@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GraphicEditor.intern.lib.stack;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GraphicEditor.@internal.lib.stack
 {
-    class MyStack<T>
+    class MyStack<T> : IRedoResolver<T>
     {
         private const int stackSize = 20;
         private T?[] stack = new T?[stackSize];
