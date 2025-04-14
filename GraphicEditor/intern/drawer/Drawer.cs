@@ -8,9 +8,8 @@ using System.Windows;
 using System.Reflection;
 using System.Windows.Controls;
 using GraphicEditor.Shapes;
-using System.Windows.Input;
-using GraphicEditor.intern.lib.ctrGetter;
-namespace GraphicEditor.@internal.drawer
+using GraphicEditor.intern.lib.redo;
+namespace GraphicEditor.intern.drawer
 {
     class Drawer
     {
@@ -21,10 +20,10 @@ namespace GraphicEditor.@internal.drawer
 
         private List<Color> colors = [Colors.White, Colors.Black];
 
-        private CtrGetter ctrGetter { get; set; }
+        private lib.ctrGetter.CtrGetter ctrGetter { get; set; }
         private AShape currentFigure;
         private Canvas myCanvas;
-        private lib.stack.MyStack<System.Windows.Shapes.Shape> redoStack;
+        private lib.redo.IRedoResolver<System.Windows.Shapes.Shape> redoStack;
 
         private bool isPolyShape;
         private bool stopPolyShape = false;
@@ -33,7 +32,7 @@ namespace GraphicEditor.@internal.drawer
         {
             this.myCanvas = canvas;
             this.ctrGetter = new();
-            this.redoStack = new();
+            this.redoStack = new MyStack<System.Windows.Shapes.Shape>();
         }
 
         public void StartDrawing(Point startPoint) {
