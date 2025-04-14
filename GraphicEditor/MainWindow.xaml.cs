@@ -1,7 +1,7 @@
 ﻿using GraphicEditor.Controls;
 using GraphicEditor.intern.plugins;
 using GraphicEditor.intern.serializer;
-using GraphicEditor.@internal.drawer;
+using GraphicEditor.intern.drawer;
 using GraphicEditor.Shapes;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
