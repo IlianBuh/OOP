@@ -1,11 +1,10 @@
-﻿using GraphicEditor.intern.lib.stack;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GraphicEditor.@internal.lib.stack
+namespace GraphicEditor.intern.lib.redo
 {
     class MyStack<T> : IRedoResolver<T>
     {
