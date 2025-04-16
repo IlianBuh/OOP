@@ -13,7 +13,7 @@ using System.IO.Pipes;
 
 namespace GraphicEditor.intern.serializer
 {
-    class Serializer
+    class Serializer: ISerializer
     {
 
         public Serializer (){

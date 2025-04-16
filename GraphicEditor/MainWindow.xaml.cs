@@ -29,11 +29,10 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
 
     private Drawer drawer;
 
-    // TODO : implement preview color rectangles
     private List<FrameworkElement> previews;
     private int currItemColor;
-    private PluginResolver pres;
-    private Serializer serializer;
+    private IPluginResolver pres;
+    private ISerializer serializer;
 
     public ObservableCollection<string> FigureNames { get; set; }
 
@@ -47,8 +46,9 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
         this.FigureNames = new ObservableCollection<string>(this.drawer.GetFigureNames());
         this.KeyDown += this.EventCompletePolyShapeDrawing;
         this.Loaded += this.onLoaded;
-        this.serializer = new();
-        this.pres = new();
+        
+        this.serializer = new Serializer();
+        this.pres = new PluginResolver();
     }
     private void onLoaded(object sender, RoutedEventArgs e){
         this.previews = this.getPreviews(this.toolBar, new());

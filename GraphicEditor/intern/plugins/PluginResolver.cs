@@ -7,7 +7,7 @@ using System.Windows;
 
 namespace GraphicEditor.intern.plugins
 {
-    class PluginResolver
+    class PluginResolver: IPluginResolver
     {
         public PluginResolver() {
             
