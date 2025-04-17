@@ -28,11 +28,11 @@ namespace GraphicEditor.intern.drawer
         private bool isPolyShape;
         private bool stopPolyShape = false;
 
-        public Drawer(Canvas canvas)
+        public Drawer(Canvas canvas, lib.redo.IRedoResolver<System.Windows.Shapes.Shape> redoStack)
         {
             this.myCanvas = canvas;
             this.ctrGetter = new();
-            this.redoStack = new MyStack<System.Windows.Shapes.Shape>();
+            this.redoStack = redoStack;
         }
 
         public void StartDrawing(Point startPoint) {

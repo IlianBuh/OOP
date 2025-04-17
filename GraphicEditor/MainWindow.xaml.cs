@@ -18,6 +18,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Shapes;
+using GraphicEditor.intern.lib.redo;
 
 namespace GraphicEditor;
 
@@ -41,7 +43,7 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
         InitializeComponent();
 
         DataContext = this;
-        this.drawer = new Drawer(this.myCanvas);
+        this.drawer = new Drawer(this.myCanvas, new MyStack<Shape>());
         this.setInitialFigure();
         this.FigureNames = new ObservableCollection<string>(this.drawer.GetFigureNames());
         this.KeyDown += this.EventCompletePolyShapeDrawing;
