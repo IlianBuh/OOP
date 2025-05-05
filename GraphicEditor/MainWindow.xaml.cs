@@ -20,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GraphicEditor.intern.lib.redo;
+using Microsoft.Win32;
 using WpfProject;
 
 namespace GraphicEditor;
@@ -104,7 +105,12 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
 
     //       ----PLUGIN RESOLVER----
     private void EventAddPlugin(object sender, EventArgs e) {
-        var (ctr, name) = this.pres.AddPlugin("C:\\Users\\ilian\\OneDrive\\Desktop\\WpfApp1\\WpfApp1\\bin\\Debug\\net8.0-windows\\WpfApp1.dll");
+        var fpath = this.fetchFilePath(new OpenFileDialog());
+        if (fpath == "")
+        {
+            return;
+        }
+        var (ctr, name) = this.pres.AddPlugin(fpath);
         this.drawer.AddFigure(ctr, name);
         this.FigureNames.Add(name);
     }
@@ -205,5 +211,20 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
 
     private void btnRedo_Click(object sender, RoutedEventArgs e) {
         this.drawer.Redo();
+    }
+    
+    private string fetchFilePath(FileDialog fileDialog)
+    {
+        fileDialog.Filter = "JSON Files (*.json)|*.json";
+        fileDialog.DefaultExt = ".json";
+        if (fileDialog.ShowDialog() == true)
+        {
+            return fileDialog.FileName.ToString();
+        }
+        else
+        {
+            return "";
+        }
+
     }
 }
