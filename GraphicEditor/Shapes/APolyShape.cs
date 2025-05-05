@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace GraphicEditor.Shapes
 {
-    abstract class APolyShape : AShape
+    public abstract class APolyShape : AShape
     {
 
         public List<Point> Points = [];

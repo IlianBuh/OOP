@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace GraphicEditor.Shapes
 {
-    abstract class Base2DFigure : AShape
+    public abstract class Base2DFigure : AShape
     {
         public double Height { 
             get => Math.Abs(EndPoint.Y - Anchor.Y);

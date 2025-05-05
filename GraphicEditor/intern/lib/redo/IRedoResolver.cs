@@ -8,9 +8,10 @@ namespace GraphicEditor.intern.lib.redo
 {
     interface IRedoResolver<T>
     {
-        public (T shape, bool ok) GetShape();
-        public void AddShape(T shape);
-        public void Clear();
+        public (List<T> items, bool ok) GetItems();
+        public bool Undo();
+        public (T val, bool ok) Redo();
+        public void AddItem(T shape);
 
     }
 }

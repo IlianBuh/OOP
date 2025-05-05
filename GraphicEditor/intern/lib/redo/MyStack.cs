@@ -1,50 +1,123 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Markup;
+using GraphicEditor.intern.lib.redo;
 
-namespace GraphicEditor.intern.lib.redo
+namespace WpfProject
 {
-    class MyStack<T> : IRedoResolver<T>
+    public class RedoResolver<T> : IRedoResolver<T>
     {
-        private const int stackSize = 20;
-        private T?[] stack = new T?[stackSize];
-        private int addS = 0;
-        private int endS = stackSize - 1;
+        private List<T> _items = new List<T>();
+        private Stack<Change<T>> _undoStack = new Stack<Change<T>>();
+        private Stack<Change<T>> _redoStack = new Stack<Change<T>>();
 
-        public void AddShape(T shape)
+        /// <summary>
+        /// Возвращает текущий список элементов.
+        /// </summary>
+        /// <returns>Кортеж, содержащий список элементов и признак успеха.</returns>
+        public (List<T> items, bool ok) GetItems()
         {
-            stack[addS] = shape;
-            var newPoint = (addS + 1) % stackSize;
-
-            if (addS == endS)
-            {
-                endS = newPoint;
-            }
-
-            addS = newPoint;
+            return (_items.ToList(), true);
         }
-        public (T shape, bool ok) GetShape()
+
+        /// <summary>
+        /// Добавляет элемент в список и сохраняет изменение для отмены.
+        /// </summary>
+        /// <param name="item">Добавляемый элемент.</param>
+        public void AddItem(T item)
         {
-            if ((endS + 1) % stackSize == addS)
-            {
-                return (default, false);
-            }
-            addS = addS == 0 ? 19 : addS - 1;
-            return (stack[addS], true);
+            _undoStack.Push(new Change<T>(ChangeType.Add, item));
+            _items.Add(item);
+            _redoStack.Clear();
         }
-        public void Clear()
-        {
-            endS = stackSize - 1;
 
-            for (addS = 0; addS < stackSize && stack[addS] != null; addS++)
+        /// <summary>
+        /// Отменяет последнее действие, восстанавливая предыдущее состояние.
+        /// </summary>
+        /// <returns>True, если отмена выполнена успешно, иначе false.</returns>
+        public bool Undo()
+        {
+            if (_undoStack.Count == 0)
             {
-                stack[addS] = default;
+                return false;
             }
 
-            addS = 0;
+            Change<T> change = _undoStack.Pop();
+            _redoStack.Push(change); // Сохраняем для Redo
+
+            switch (change.Type)
+            {
+                case ChangeType.Add:
+                    _items.Remove(change.Item);
+                    break;
+                case ChangeType.Remove:
+                    _items.Insert(change.Index, change.Item);
+                    break;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Повторяет последнее отмененное действие.
+        /// </summary>
+        /// <returns>Восстановленный элемент и признак успеха.</returns>
+        public (T val, bool ok) Redo()
+        {
+            if (_redoStack.Count == 0)
+            {
+                return (default(T)!, false);
+            }
+
+            Change<T> change = _redoStack.Pop();
+            _undoStack.Push(change); // Сохраняем для Undo
+
+            switch (change.Type)
+            {
+                case ChangeType.Add:
+                    _items.Add(change.Item);
+                    return (change.Item, true);
+                case ChangeType.Remove:
+                    if (change.Index >= 0 && change.Index <= _items.Count) // <= для Add
+                    {
+                        _items.RemoveAt(change.Index);
+                        return (default(T)!, true); //Удаленный элемент не возвращаем.
+                    }
+                    else
+                    {
+                         return (default(T)!, false); // Индекс за пределами
+                    }
+                   
+                default:
+                    return (default(T)!, false);
+            }
         }
     }
 
+    /// <summary>
+    /// Представляет изменение, которое можно отменить или повторить.
+    /// </summary>
+    /// <typeparam name="T">Тип элемента.</typeparam>
+    internal class Change<T>
+    {
+        public ChangeType Type { get; }
+        public T Item { get; }
+        public int Index { get; }
+
+        public Change(ChangeType type, T item, int index = -1)
+        {
+            Type = type;
+            Item = item;
+            Index = index;
+        }
+    }
+
+    /// <summary>
+    /// Тип изменения.
+    /// </summary>
+    internal enum ChangeType
+    {
+        Add,
+        Remove,
+    }
 }

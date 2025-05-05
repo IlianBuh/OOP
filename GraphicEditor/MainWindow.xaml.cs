@@ -20,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using GraphicEditor.intern.lib.redo;
+using WpfProject;
 
 namespace GraphicEditor;
 
@@ -32,6 +33,7 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
     private Drawer drawer;
 
     private List<FrameworkElement> previews;
+    
     private int currItemColor;
     private IPluginResolver pres;
     private ISerializer serializer;
@@ -43,14 +45,14 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
         InitializeComponent();
 
         DataContext = this;
-        this.drawer = new Drawer(this.myCanvas, new MyStack<Shape>());
+        this.drawer = new Drawer(this.myCanvas, new RedoResolver<AShape>());
         this.setInitialFigure();
         this.FigureNames = new ObservableCollection<string>(this.drawer.GetFigureNames());
         this.KeyDown += this.EventCompletePolyShapeDrawing;
         this.Loaded += this.onLoaded;
         
-        this.serializer = new Serializer();
-        this.pres = new PluginResolver();
+        this.serializer = new JsonSerializerImpl();
+        this.pres = new ShapePluginResolver();
     }
     private void onLoaded(object sender, RoutedEventArgs e){
         this.previews = this.getPreviews(this.toolBar, new());
@@ -72,7 +74,7 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
 
         return res;
     }
-
+    
     // ----COMBO BOX HANDLING----
     private void setInitialFigure()
     {
@@ -87,17 +89,24 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
 
 
     // ----EVENTS-----
+    
+    
     //       ----SERIALIZER----
     private void EventSaveCanvas(object sender, EventArgs e) {
-        this.serializer.SaveCanvas(this.myCanvas);
+        List<AShape> shapes = this.drawer.GetShapes();
+        this.serializer.Serialize( shapes );
     }
-    private void EventLoadCanvas(object sender, EventArgs e) {
-        this.serializer.LoadFile(this.myCanvas);
+    private void EventLoadCanvas(object sender, EventArgs e)
+    {
+        var shapes = this.serializer.Deserialise();
+        this.drawer.DrawList(shapes);
     }
 
     //       ----PLUGIN RESOLVER----
     private void EventAddPlugin(object sender, EventArgs e) {
-        this.pres.AddPlugin();
+        var (ctr, name) = this.pres.AddPlugin("C:\\Users\\ilian\\OneDrive\\Desktop\\WpfApp1\\WpfApp1\\bin\\Debug\\net8.0-windows\\WpfApp1.dll");
+        this.drawer.AddFigure(ctr, name);
+        this.FigureNames.Add(name);
     }
 
 
@@ -151,6 +160,7 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
     //       ----DRAWING----
     private void EventStartDraw(object sender, MouseButtonEventArgs e)
     {
+        this.drawer.SetStrockThickness(this.brushSizeSlider.Value);
         this.drawer.StartDrawing(e.GetPosition(this.myCanvas));
 
         this.myCanvas.MouseMove += this.EventDrawingFigure;
@@ -158,7 +168,8 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
     }
     private void EventEndDraw(object sender, MouseButtonEventArgs e)
     {
-        if (!this.drawer.StopDrawing(e.GetPosition(this.myCanvas))) {
+        var sh = this.drawer.StopDrawing(e.GetPosition(this.myCanvas));
+        if (sh == null) {
             return;
         }
 
@@ -195,5 +206,4 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
     private void btnRedo_Click(object sender, RoutedEventArgs e) {
         this.drawer.Redo();
     }
-
 }

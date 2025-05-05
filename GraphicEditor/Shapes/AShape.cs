@@ -8,17 +8,17 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using Newtonsoft.Json;
 
 namespace GraphicEditor
 {
     using System.Windows;
-    abstract class AShape
+    public abstract class AShape
     {
         public Brush Stroke { set; get; }
         public double StrokeThickness { set; get; }
         public Brush Fill { get; set; }
-        
-        public readonly Point Anchor;
+        public Point Anchor;
         public virtual Point EndPoint { get; set; }
         
         protected AShape(Point anch, Point endP,
@@ -30,6 +30,7 @@ namespace GraphicEditor
             this.StrokeThickness = StrokeThickness;
             this.Fill = Fill ?? Brushes.Black;
         }
+        
         abstract public void Draw(Canvas canvas);
 
     }
