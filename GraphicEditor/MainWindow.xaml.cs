@@ -215,8 +215,6 @@ public partial class MainWindow : Window//, INotifyPropertyChanged
     
     private string fetchFilePath(FileDialog fileDialog)
     {
-        fileDialog.Filter = "JSON Files (*.json)|*.json";
-        fileDialog.DefaultExt = ".json";
         if (fileDialog.ShowDialog() == true)
         {
             return fileDialog.FileName.ToString();
