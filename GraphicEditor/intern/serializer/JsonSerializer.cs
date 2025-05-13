@@ -11,35 +11,32 @@ using Newtonsoft.Json;
 
 namespace WpfProject
 {
- // Custom Type Discriminator for (De)serialization
      public class JsonSerializerImpl : ISerializer
      {
-         private string _filePath = "shapes.json"; // Default file path
+         private string _filePath = "shapes.json"; 
 
          public JsonSerializerImpl()
          {
-             // No options needed for Newtonsoft.Json, we can use default settings
          }
 
          public void Serialize(List<AShape> shapes)
          {
              try
              {
-                 // Show save file dialog
                  if (!this.fetchFilePath(new SaveFileDialog()))
                  {
                      return ;
                  }
                  string jsonString = JsonConvert.SerializeObject(shapes, Formatting.Indented, new JsonSerializerSettings
                  {
-                     TypeNameHandling = TypeNameHandling.Auto, // This is important for preserving polymorphism
+                     TypeNameHandling = TypeNameHandling.Auto, 
                  });
                  File.WriteAllText(_filePath, jsonString);
              }
              catch (Exception ex)
              {
                  Console.WriteLine($"Error during serialization: {ex.Message}");
-                 throw; // Rethrow the exception to be handled by the caller
+                 throw; 
              }
          }
 
