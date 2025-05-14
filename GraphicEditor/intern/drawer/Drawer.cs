@@ -48,7 +48,7 @@ namespace GraphicEditor.intern.drawer
                 drawFigure();
             }
         }
-        public AShape? StopDrawing(Point point, bool isKeyPressed = false) {
+        public AShape? StopDrawing(Point point, bool isKeyPressed = false, bool flag = true) {
 
 
             CompletePolyShapeDrawing(isKeyPressed);
@@ -59,7 +59,7 @@ namespace GraphicEditor.intern.drawer
             isDrawing = false;
             var res = this.currentFigure;
             stopPolyShape = false;
-            if (this.currentFigure != null)
+            if (this.currentFigure != null && flag)
                 redoStack.AddItem(this.currentFigure);
             currentFigure = null;
             return res;
@@ -101,8 +101,25 @@ namespace GraphicEditor.intern.drawer
         }
         public void Redo() { 
             var res = redoStack.Redo();
-            if (res.ok) {
-                this.DrawList([res.val]);
+            if (res.ok)
+            {
+                var shape = res.val;
+                this.setFigure(shape);
+                
+                this.StartDrawing(shape.Anchor);
+                this.UpdateFigure(shape.EndPoint);
+                if (shape is APolyShape)
+                {
+                    for (int i = 0;i < ((APolyShape)shape).Points.Count-1;i++)
+                    {
+                        this.StopDrawing(((APolyShape)shape).Points[i], false);
+                    }
+                    this.StopDrawing(((APolyShape)shape).Points[((APolyShape)shape).Points.Count-1], true, false);
+
+                } else
+                {
+                    var sh = this.StopDrawing(shape.EndPoint, shape is APolyShape, false);
+                }
             } else {
                 MessageBox.Show("No shape in history.");
             }
@@ -112,32 +129,51 @@ namespace GraphicEditor.intern.drawer
             currentFigure.Draw(myCanvas);
         }
 
+        private void setFigure(AShape shape)
+        {
+            this.ctrGetter.SetCurrCtr(shape.ToString()
+                .Substring(shape.ToString()
+                    .LastIndexOf('.')+1)
+            );
+            this.SetStrockThickness(shape.StrokeThickness);
+            this.SetColor(Drawer.FILL_COLOR_INDEX, ((SolidColorBrush)shape.Fill).Color);
+            this.SetColor(Drawer.STROKE_COLOR_INDEX, ((SolidColorBrush)shape.Stroke).Color);
+                
+            this.currentFigure = (AShape)this.ctrGetter.CurrCtr.Invoke(
+                [shape.Anchor, shape.Anchor,
+                    new SolidColorBrush(this.colors[STROKE_COLOR_INDEX]), this.strokeThickness, new SolidColorBrush(colors[FILL_COLOR_INDEX])]
+            );
+        }
+        
         public void DrawList(List<AShape> shapes)
         {
             if (shapes == null)
                 return;
             foreach (var shape in shapes)
             {
-                this.ctrGetter.SetCurrCtr(shape.ToString()
-                                                .Substring(shape.ToString()
-                                                .LastIndexOf('.')+1)
-                );
-                this.SetStrockThickness(shape.StrokeThickness);
-                this.SetColor(Drawer.FILL_COLOR_INDEX, ((SolidColorBrush)shape.Fill).Color);
-                this.SetColor(Drawer.STROKE_COLOR_INDEX, ((SolidColorBrush)shape.Stroke).Color);
-                this.currentFigure = (AShape)this.ctrGetter.CurrCtr.Invoke(
-                    [shape.Anchor, shape.Anchor,
-                        new SolidColorBrush(this.colors[STROKE_COLOR_INDEX]), this.strokeThickness, new SolidColorBrush(colors[FILL_COLOR_INDEX])]
-                );
+                this.setFigure(shape);
+                
                 this.StartDrawing(shape.Anchor);
                 this.UpdateFigure(shape.EndPoint);
-                var sh = this.StopDrawing(shape.EndPoint, shape is APolyShape);
-            
+                if (shape is APolyShape)
+                {
+                    for (int i = 0;i < ((APolyShape)shape).Points.Count-1;i++)
+                    {
+                        this.StopDrawing(((APolyShape)shape).Points[i], false);
+                    }
+                    this.StopDrawing(((APolyShape)shape).Points[((APolyShape)shape).Points.Count-1], true);
+
+                } else
+                {
+                    var sh = this.StopDrawing(shape.EndPoint, shape is APolyShape);
+                }
             }
         }
 
         private void addPointToPolygon(Point point)
         {
+            if (currentFigure == null)
+                return;
             (currentFigure as APolyShape).AddPoint(point);
         }
 
